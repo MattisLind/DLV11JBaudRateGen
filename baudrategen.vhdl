@@ -1,98 +1,142 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-USE IEEE.STD_LOGIC_UNSIGNED.ALL;
+--USE IEEE.STD_LOGIC_UNSIGNED.ALL;
 entity baudrategen is
 port (
    clk_in: in std_logic; -- clock input on FPGA
-   clk_out: out std_logic; -- clock output 
-   baud_rate_sel: in std_logic_vector(3 downto 0)
+   clk_out1: out std_logic; -- clock output 
+   clk_out2: out std_logic; -- clock output 
+   clk_out3: out std_logic; -- clock output 
+   clk_out4: out std_logic; -- clock output          
+   chan1_baud_rate_sel: in std_logic_vector(3 downto 0);
+   chan2_baud_rate_sel: in std_logic_vector(3 downto 0);
+   chan3_baud_rate_sel: in std_logic_vector(3 downto 0);
+   chan4_baud_rate_sel: in std_logic_vector(3 downto 0)
   );
 end baudrategen;
 
 architecture Behavioral of baudrategen is
 signal divisor: std_logic_vector(27 downto 0):=(others =>'0');
-signal 460800bps, 230400bps, 115200bps, 38400bps, 19200bps, 9600bps, 4800bps, 2400bps, 1200bps, 600bps,  300bps, 110bps: std_logic;
-signal divide_by_three std_logic_vector(1 downto 0):=(others=>'0');
+signal r460800bps, r230400bps, r115200bps, r38400bps, r19200bps, r9600bps, r4800bps, r2400bps, r1200bps, r600bps,  r300bps, r110bps: std_logic;
+signal divide_by_three: std_logic_vector(1 downto 0):=(others=>'0');
 begin
-  460800bps <= clk_in;
-  process(460800bps)
+  r460800bps <= clk_in;
+  process(clk_in)
   begin
-    if(rising_edge(460800bps)) then
-      230400bps <= not 230400bps; 
+    if(rising_edge(clk_in)) then
+      r230400bps <= not r230400bps; 
     end if;
   end process;
-  process(230400bps)
+  process(r230400bps)
   begin
-    if(rising_edge(230400bps)) then
-      115200bps <= not 115200bps; 
+    if(rising_edge(r230400bps)) then
+      r115200bps <= not r115200bps; 
     end if;
   end process;
-  process(115200bps)
+  process(r115200bps)
   begin
-    if(rising_edge(230400bps)) then
-      if divide_by_three = 0 then
+    if(rising_edge(r230400bps)) then
+      if divide_by_three = "00" then
         divide_by_three <= "01";
-        38400bps <= not 38400bps;
-      end if
-      if divide_by_three = 1 then
+        r38400bps <= not r38400bps;
+      end if;
+      if divide_by_three = "01" then
         divide_by_three <= "10";
-      end if      
-      if divide_by_three = 2 then
+      end if;     
+      if divide_by_three = "10" then
         divide_by_three <= "00";
-      end if      
+      end if;     
     end if;
   end process;
-  process(38400bps)
+  process(r38400bps)
   begin
-    if(rising_edge(38400bps)) then
-      19200bps <= not 19200bps; 
+    if(rising_edge(r38400bps)) then
+      r19200bps <= not r19200bps; 
     end if;
   end process;
-  process(19200bps)
+  process(r19200bps)
   begin
-    if(rising_edge(19200bps)) then
-      9600bps <= not 9600bps; 
+    if(rising_edge(r19200bps)) then
+      r9600bps <= not r9600bps; 
     end if;
   end process; 
-  process(9600bps)
+  process(r9600bps)
   begin
-    if(rising_edge(9600bps)) then
-      4800bps <= not 4800bps; 
+    if(rising_edge(r9600bps)) then
+      r4800bps <= not r4800bps; 
     end if;
   end process; 
-  process(4800bps)
+  process(r4800bps)
   begin
-    if(rising_edge(4800bps)) then
-      2400bps <= not 2400bps; 
+    if(rising_edge(r4800bps)) then
+      r2400bps <= not r2400bps; 
     end if;
   end process;  
-  process(2400bps)
+  process(r2400bps)
   begin
-    if(rising_edge(2400bps)) then
-      1200bps <= not 1200bps; 
+    if(rising_edge(r2400bps)) then
+      r1200bps <= not r1200bps; 
     end if;
   end process; 
-  process(1200bps)
+  process(r1200bps)
   begin
-    if(rising_edge(1200bps)) then
-      600bps <= not 600bps; 
+    if(rising_edge(r1200bps)) then
+      r600bps <= not r600bps; 
     end if;
   end process;  
-  process(600bps)
+  process(r600bps)
   begin
-    if(rising_edge(600bps)) then
-      300bps <= not 300bps; 
-      110bps <= not 110bps;
+    if(rising_edge(r600bps)) then
+      r300bps <= not r300bps; 
+      r110bps <= not r110bps;
     end if;
-  end process;       
-  clk_out <= 460800bps when baud_rate_gen = "1001"
-             230400bps when baud_rate_gen = "1000"
-             115200bps when baud_rate_gen = "0111"
-              38400bps when baud_rate_gen = "0110"
-              19200bps when baud_rate_gen = "0101"
-               9600bps when baud_rate_gen = "0100"
-               2400bps when baud_rate_gen = "0011"
-               1200bps when baud_rate_gen = "0010"
-                300bps when baud_rate_gen = "0001"
-                110bps when baud_rate_gen = "0000";
+  end process; 
+  WITH chan1_baud_rate_sel SELECT
+  clk_out1 <= r460800bps WHEN "1001",
+             r230400bps WHEN "1000",
+             r115200bps WHEN "0111",
+              r38400bps WHEN "0110",
+              r19200bps WHEN "0101",
+               r9600bps WHEN "0100",
+               r2400bps WHEN "0011",
+               r1200bps WHEN "0010",
+                r300bps WHEN "0001",
+                r110bps WHEN "0000",
+             r230400bps WHEN OTHERS; 
+  WITH chan2_baud_rate_sel SELECT
+  clk_out2 <= r460800bps WHEN "1001",
+             r230400bps WHEN "1000",
+             r115200bps WHEN "0111",
+              r38400bps WHEN "0110",
+              r19200bps WHEN "0101",
+               r9600bps WHEN "0100",
+               r2400bps WHEN "0011",
+               r1200bps WHEN "0010",
+                r300bps WHEN "0001",
+                r110bps WHEN "0000",
+            r230400bps WHEN OTHERS;                 
+  WITH chan3_baud_rate_sel SELECT
+  clk_out3 <= r460800bps WHEN "1001",
+             r230400bps WHEN "1000",
+             r115200bps WHEN "0111",
+              r38400bps WHEN "0110",
+              r19200bps WHEN "0101",
+               r9600bps WHEN "0100",
+               r2400bps WHEN "0011",
+               r1200bps WHEN "0010",
+                r300bps WHEN "0001",
+                r110bps WHEN "0000",
+              r230400bps WHEN OTHERS; 
+  WITH chan4_baud_rate_sel SELECT
+  clk_out4 <= r460800bps WHEN "1001",
+             r230400bps WHEN "1000",
+             r115200bps WHEN "0111",
+              r38400bps WHEN "0110",
+              r19200bps WHEN "0101",
+               r9600bps WHEN "0100",
+               r2400bps WHEN "0011",
+               r1200bps WHEN "0010",
+                r300bps WHEN "0001",
+                r110bps WHEN "0000",
+            r230400bps WHEN OTHERS;  
 end Behavioral;
